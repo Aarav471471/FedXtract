@@ -25,7 +25,8 @@ class Case(BaseModel):
     amount: float
     country: str
 
-conn = sqlite3.connect("database/data.db", check_same_thread=False)
+conn = sqlite3.connect("data.db", check_same_thread=False)
+
 cur = conn.cursor()
 
 cur.execute("""CREATE TABLE IF NOT EXISTS dcas(

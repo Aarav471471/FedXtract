@@ -1,3 +1,4 @@
+
 const API = "https://fedxtract-backend.onrender.com";
 
 function show(id){
@@ -20,53 +21,54 @@ function toast(msg){
 /* ====== REGISTER DCA ====== */
 async function registerDCA(){
   let name = document.getElementById("dcaName").value;
-  let cin = document.getElementById("dcaCin").value;
-  let stars = document.getElementById("dcaStars").value;
+  let cin  = document.getElementById("cin").value;
+  let stars= parseInt(document.getElementById("stars").value);
 
-  let res = await fetch(`${API}/register_dca`,{
+  const res = await fetch(`${API}/register_dca`, {
     method:"POST",
     headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ name, cin, stars })
+    body: JSON.stringify({name,cin,stars})
   });
 
-  let data = await res.json();
-  alert(data.message);
+  const data = await res.json();
+  toast(data.message);       
+  loadDCAs(); 
 }
 
-
 async function createCase(){
-  let client = document.getElementById("caseClient").value;
-  let amount = document.getElementById("caseAmount").value;
-  let country = document.getElementById("caseCountry").value;
+  const client  = document.getElementById("clientName").value;
+  const amount  = parseFloat(document.getElementById("amount").value);
+  const country = document.getElementById("country").value;
 
-  let res = await fetch(`${API}/create_case`,{
+  const res = await fetch(`${API}/create_case`, {
     method:"POST",
     headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ client, amount, country })
+    body: JSON.stringify({client,amount,country})
   });
 
-  let data = await res.json();
-  alert("Case Created: " + data.case_id);
+  const data = await res.json();
+  alert("CASE CREATED: " + data.case_id);
   loadCases();
 }
 
 async function loadCases(){
-  let res = await fetch(`${API}/cases`);
-  let data = await res.json();
+  const res = await fetch(`${API}/cases`);
+  const data = await res.json();
 
-  let html="";
+  const body = document.getElementById("caseBody");
+  body.innerHTML = "";
+
   data.forEach(c=>{
-    html+=`<tr>
-      <td>${c.id}</td>
-      <td>${c.client}</td>
-      <td>₹${c.amount}</td>
-      <td>${c.country}</td>
-      <td>${c.dca}</td>
-      <td><span class="status ${c.status.toLowerCase()}">${c.status}</span></td>
-    </tr>`;
+    body.innerHTML += `
+      <tr>
+        <td>${c.id}</td>
+        <td>${c.client}</td>
+        <td>$${c.amount}</td>
+        <td>${c.country}</td>
+        <td>${c.dca}</td>
+        <td><span class="status ${c.status.toLowerCase()}">${c.status}</span></td>
+      </tr>`;
   });
-
-  document.getElementById("casesBody").innerHTML = html;
 }
 
 // window.onload = loadCases;
@@ -75,7 +77,7 @@ async function registerDCA(){
   let cin  = document.getElementById("cin").value;
   let stars= parseInt(document.getElementById("stars").value);
 
-  const res = await fetch("http://127.0.0.1:8000/register_dca", {
+  const res = await fetch(`${API}/register_dca`, {
     method:"POST",
     headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({name,cin,stars})
@@ -89,58 +91,84 @@ async function registerDCA(){
 async function loadDCAs(){
   const res = await fetch(`${API}/dcas`);
   const data = await res.json();
-  // render your DCA table here
+
+  const t = document.getElementById("dcaTable");
+  t.innerHTML = `<tr><th>Name</th><th>CIN</th><th>Stars</th><th>Score</th></tr>`;
+
+  data.forEach(d=>{
+    t.innerHTML += `<tr>
+      <td>${d.name}</td>
+      <td>${d.cin}</td>
+      <td>${"⭐".repeat(d.stars)}</td>
+      <td>${d.score}</td>
+    </tr>`;
+  });
 }
 
+loadDCAs();
+
+
 async function assignCase(){
-  let res = await fetch(`${API}/assign_case`,{ method:"POST" });
+  let res = await fetch(`${API}/assign_case`,{
+    method:"POST"
+  });
+
   let data = await res.json();
-  alert(data.message || `Case ${data.case} assigned to ${data.assigned_to}`);
+
+  if(data.message){
+    alert(data.message);
+  }else{
+    alert("Case " + data.case + " assigned to " + data.assigned_to);
+  }
+
   loadCases();
 }
 
-
 async function recoverCase(){
-  let case_id = document.getElementById("recoverCaseId").value;
-  let days = document.getElementById("recoverDays").value;
+  let cid = prompt("Enter Case ID");
+  let days = prompt("Days taken");
 
   let res = await fetch(`${API}/recover_case`,{
     method:"POST",
     headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ case_id, days })
+    body: JSON.stringify({case_id:cid, days:parseInt(days)})
   });
 
   let data = await res.json();
-  alert("Recovered. Score gained: " + Math.round(data.deltaS));
+  alert("ΔS = " + Math.round(data.deltaS) + " | Country Tavg updated to " + Math.round(data.new_tavg) + " days");
   loadCases();
 }
+async function autopayCase(){
+  let cid = prompt("Enter Case ID");
 
-async function autopay(){
-  let case_id = document.getElementById("payCaseId").value;
+  let res = await fetch(`${API}/autopay`,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({case_id:cid})
+  });
 
-  let res = await fetch(`${API}/autopay?case_id=` + case_id,{ method:"POST" });
   let data = await res.json();
-  alert("Commission Paid: ₹" + Math.round(data.commission));
+  alert("₹" + Math.round(data.commission) + " auto‑paid to " + data.dca);
   loadCases();
 }
-
 
 async function loadLeaderboard(){
   let res = await fetch(`${API}/leaderboard`);
   let data = await res.json();
 
-  let html="";
-  data.forEach(r=>{
-    html+=`<tr>
-      <td>#${r.rank}</td>
-      <td>${r.name}</td>
-      <td>${r.stars}⭐</td>
-      <td>${r.score}</td>
+  let html = "<tr><th>Rank</th><th>DCA</th><th>Stars</th><th>AI Score</th></tr>";
+  data.forEach(d=>{
+    html += `<tr>
+      <td>#${d.rank}</td>
+      <td>${d.name}</td>
+      <td>${"⭐".repeat(d.stars)}</td>
+      <td>${d.score}</td>
     </tr>`;
   });
 
-  document.getElementById("leaderboardBody").innerHTML = html;
+  document.getElementById("leaderTable").innerHTML = html;
 }
+
 
 async function loadDashboard(){
   let res = await fetch(`${API}/dashboard_stats`);

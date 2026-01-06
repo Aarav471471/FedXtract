@@ -258,8 +258,8 @@ def leaderboard():
 @app.get("/dashboard_stats")
 def dashboard_stats():
 
-    # Total Pending (all not paid)
-    cur.execute("SELECT IFNULL(SUM(amount),0) FROM cases WHERE status!='Paid'")
+    # Only truly unpaid & unrecovered cases are pending
+    cur.execute("SELECT IFNULL(SUM(amount),0) FROM cases WHERE status IN ('Pending','Assigned')")
     total_pending = cur.fetchone()[0]
 
     # Active DCAs
@@ -275,7 +275,7 @@ def dashboard_stats():
     """)
     recovered_month = cur.fetchone()[0]
 
-    # Top Performer (highest AI score)
+    # Top Performer
     cur.execute("SELECT name FROM dcas ORDER BY score DESC LIMIT 1")
     row = cur.fetchone()
     top_dca = row[0] if row else "—"

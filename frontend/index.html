@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FedEx Autonomous Recovery Network</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="logo">FedEx AI Recovery</div>
+  <ul>
+    <li onclick="show('dashboard')">Dashboard</li>
+    <li onclick="show('register')">Register DCA</li>
+    <li onclick="show('cases')">Create Case</li>
+    <li onclick="show('assign')">Assign DCA</li>
+    <li onclick="show('recovery')">Update Recovery</li>
+    <li onclick="show('autopay')">Autopay</li>
+    <li onclick="show('leaderboard')">Leaderboard</li>
+  </ul>
+</nav>
+
+<section id="dashboard" class="page active">
+ <div class="dashboard-cards">
+  <div class="dash-card">
+    <h3>Total Pending</h3>
+    <p id="pendingAmt">$0</p>
+  </div>
+
+  <div class="dash-card">
+    <h3>Active DCAs</h3>
+    <p id="activeDcas">0</p>
+  </div>
+
+  <div class="dash-card">
+    <h3>Recovered This Month</h3>
+    <p id="recoveredMonth">₹0</p>
+  </div>
+
+  <div class="dash-card">
+    <h3>Top Performer</h3>
+    <p id="topDca">—</p>
+  </div>
+</div>
+
+  </div>
+
+<div class="dashboard-actions">
+  <button onclick="show('register')">+ Register New DCA</button>
+  <button onclick="show('cases')">+ Create New Case</button>
+  <button onclick="show('assign')">Run ML‑1 Assignment</button>
+  <button onclick="show('recovery')">Update Recovery (ML‑2)</button>
+  <button onclick="show('autopay')">Release Autopay</button>
+</div>
+
+  <!-- <h2 style="margin-top:40px;">Live Case Flow</h2>
+  <table id="caseTable">
+    <tr><th>Case ID</th><th>Client</th><th>Amount</th><th>Country</th><th>DCA</th><th>Status</th></tr>
+  </table> -->
+</section>
+
+<section id="register" class="page">
+  <h1>DCA Registration (CIN Based)</h1>
+  <input id="dcaName" placeholder="DCA Name">
+  <input id="cin" placeholder="CIN Number">
+  <select id="stars" class="star-select">
+    <option value="1">⭐ New</option>
+    <option value="2">⭐⭐ Low Trust</option>
+    <option value="3">⭐⭐⭐ Stable</option>
+    <option value="4">⭐⭐⭐⭐ High Performer</option>
+    <option value="5">⭐⭐⭐⭐⭐ Elite</option>
+  </select>
+  <button onclick="registerDCA()">Register DCA</button>
+
+  <h3 style="margin-top:40px;">Registered DCAs</h3>
+<table id="dcaTable">
+  <tr>
+    <th>Name</th><th>CIN</th><th>Stars</th><th>Score</th>
+  </tr>
+</table>
+
+</section>
+
+<section id="cases" class="page">
+  <h1>Create Recovery Case</h1>
+  <input id="clientName" placeholder="Client Name">
+  <input id="amount" placeholder="Amount (USD)">
+  <select id="country">
+    <option>USA</option><option>Germany</option><option>India</option><option>Brazil</option>
+  </select>
+  <button onclick="createCase()">Create Case</button>
+<div id="caseWrapper">
+  <table id="caseTable">
+    <thead>
+      <tr>
+        <th>Case ID</th>
+        <th>Client</th>
+        <th>Amount</th>
+        <th>Country</th>
+        <th>DCA</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="caseBody"></tbody>
+  </table>
+</div>
+
+
+
+</section>
+
+<section id="assign" class="page">
+  <h1>ML‑1 DCA Assignment</h1>
+  <button onclick="assignCase()">Run ML‑1 Assignment</button>
+  <div class="result-box">Selected DCA: PrimeCollect</div>
+</section>
+
+<section id="recovery" class="page">
+  <h1>Update Recovery</h1>
+  <input placeholder="Case ID">
+  <input placeholder="Days Taken">
+  <button onclick="recoverCase()">Update Recovery (ML‑2)</button>
+</section>
+
+<section id="autopay" class="page">
+  <h1>AI Autopay Engine</h1>
+  <input placeholder="Case ID">
+  <button onclick="autopayCase()">Release Autopay</button>
+  <div class="result-box">Commission: $22,000,000</div>
+</section>
+
+<section id="leaderboard" class="page">
+  <h1>DCA Star Leaderboard</h1>
+  <table id="leaderTable"></table>
+    <button onclick="show('leaderboard'); loadLeaderboard()">Leaderboard</button>
+  </table>
+</section>
+
+<div id="toast" class="toast"></div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

@@ -261,7 +261,7 @@ def dashboard_stats():
     # Only truly unpaid & unrecovered cases are pending
     cur.execute("SELECT IFNULL(SUM(amount),0) FROM cases WHERE status IN ('Pending','Assigned')")
     total_pending = cur.fetchone()[0]
-
+        
     # Active DCAs
     cur.execute("SELECT COUNT(*) FROM dcas")
     active_dcas = cur.fetchone()[0]
